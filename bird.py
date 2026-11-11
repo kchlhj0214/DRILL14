@@ -31,3 +31,20 @@ class Bird:
         self.x, self.y = x, y
         self.dir = 1 if direction >= 0 else -1
         self.frame = frame % FLIGHT_FRAME_COUNT
+
+    def update(self):
+        self.frame = (self.frame + FLIGHT_FRAMES_PER_SECOND *
+                      game_framework.frame_time) % FLIGHT_FRAME_COUNT
+
+    def draw(self):
+        # 파일은 위에서 아래 순서, pico2d의 원점은 왼쪽 아래.
+        row, column = divmod(int(self.frame), SHEET_COLUMNS)
+        left = column * self.image.w // SHEET_COLUMNS
+        right = (column + 1) * self.image.w // SHEET_COLUMNS
+        top = self.image.h - row * self.image.h // SHEET_ROWS
+        bottom = self.image.h - (row + 1) * self.image.h // SHEET_ROWS
+        self.image.clip_composite_draw(
+            left, bottom, right - left, top - bottom,
+            0, '' if self.dir == 1 else 'h',
+            self.x, self.y, DRAW_WIDTH, DRAW_HEIGHT
+        )
