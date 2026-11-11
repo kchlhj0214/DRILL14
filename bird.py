@@ -35,6 +35,18 @@ class Bird:
     def update(self):
         self.frame = (self.frame + FLIGHT_FRAMES_PER_SECOND *
                       game_framework.frame_time) % FLIGHT_FRAME_COUNT
+        left = DRAW_WIDTH / 2
+        right = get_canvas_width() - DRAW_WIDTH / 2
+        span = right - left
+        if span <= 0:
+            self.x = get_canvas_width() / 2
+            return
+        # 왕복 경로를 펼친 좌표로 계산해 여러 번 반사되는 긴 dt도 보존.
+        position = max(0.0, min(span, self.x - left))
+        phase = position if self.dir == 1 else 2 * span - position
+        phase = (phase + FLY_SPEED_PPS * game_framework.frame_time) % (2 * span)
+        self.dir = 1 if phase < span else -1
+        self.x = left + (phase if phase < span else 2 * span - phase)
 
     def draw(self):
         # 파일은 위에서 아래 순서, pico2d의 원점은 왼쪽 아래.
